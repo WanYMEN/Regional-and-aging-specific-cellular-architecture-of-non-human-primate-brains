@@ -1,0 +1,28 @@
+## The following pipelines were used for LDSC analysis to predict the heritability enrichment of 30 diseases/traits across genes specifically or predominantly expressed in each cell type. For subtype, region and aging related genes, similar pipelines were used. ##
+
+#### Compute annot files from genes specifically expressed each cell type after being transferred to hg19 genome coordinates using Ensembl. All expressed genes were used as a control gene Set ####
+for i in AMY_ExN Astro Bergmann CA1_3 CB_InN CGC cOPC Endo Epen ExN Fib InN Micro Oligo OPC RGC SMC SPN TH_ExN TH_InN
+do
+for j in {1..22}
+do
+/home_path/tool/ldsc/make_annot.py --gene-set-file /home_path/ldsc/celltype/${i}.GeneSet --gene-coord-file /home_path/tool/ldsc/make_annot_sample_files/ENSG_coord.txt --windowsize 100000 --bimfile /home_path/tool/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.${j}.bim --annot-file ${i}_geneSet.${j}.annot.gz
+done
+done
+####
+
+
+#### Compute LD scores with an annot file ####
+for i in AMY_ExN Astro Bergmann CA1_3 CB_InN CGC cOPC Endo Epen ExN Fib InN Micro Oligo OPC RGC SMC SPN TH_ExN TH_InN
+do
+for j in {1..22}
+do
+/home_path/tool/ldsc/ldsc.py --l2 --bfile /home_path/tool/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.${j} --ld-wind-cm 1 --annot ${i}_geneSet.${j}.annot.gz --thin-annot --print-snps /home_path/tool/ldsc/hapmap3_snps/hm.${j}.snp --out ${i}_geneSet.${j}
+done
+done
+####
+
+
+#### Run the regressions, using ADHD as an example ####
+/home_path/tool/ldsc/ldsc.py --h2-cts /home_path/tool/ldsc/sumstats/PASS_ADHD_Demontis2018.sumstats --ref-ld-chr /home_path/tool/ldsc/1000G_EUR_Phase3_baseline/baseline. --out ADHD_celltype --ref-ld-chr-cts /home_path/ldsc/celltype.ldcts --w-ld-chr /home_path/tool/ldsc/weights_hm3_no_hla/weights.  --n-blocks 2000
+####
+
