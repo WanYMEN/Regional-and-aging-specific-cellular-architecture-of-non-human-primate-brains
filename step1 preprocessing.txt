@@ -1,0 +1,30 @@
+## The following steps were pipelines for snRNA-seq raw data preprocessing ##
+
+## Raw DNBSEQ-sequencing reads were filtered and demultiplexed using the parse tool in PISA (v0.2-17-g8cc39ef) ##
+/home_path/tool/DNBelab_C_Series_scRNA/bin/PISA parse -t 20 -f -q 20 -dropN -config /home_path/tool/DNBelab_C_Series_scRNA/config/DNBelabC4_scRNA_readStructure.json -cbdis barcode_counts_raw.txt -run 1 -report sequencing_report.csv sample_label_R1_001.fastq.gz sample_label_R2_001.fastq.gz | gzip -c  > sample_label_reads.fq.gz
+
+
+
+## reads alignment ## 
+STAR --outSAMmultNmax 1 --outStd SAM --runThreadN 10 --genomeDir /home_path/ref/macaque/v102/star --readFilesCommand gzip -dc --readFilesIn sample_label_reads.fq.gz --outFileNamePrefix ./ 1> aln.sam
+
+/home_path/tool/PISA-0.7/PISA sam2bam -@ 10 -report alignment_report.csv -adjust-mapq -gtf /home_path/ref/macaque/v102/Macaca_mulatta.Mmul_10.102.gtf -o aln.bam aln.sam
+
+/home_path/tool/DNBelab_C_Series_scRNA/bin/sambamba sort --tmpdir=/home_path/tmp -t 10 -o sorted.bam aln.bam
+####
+
+
+
+## producing raw nucleus versus gene UMI count matrix ## 
+/home_path/tool/PISA-0.7/PISA anno -intron -gtf /home_path/ref/macaque/v102/Macaca_mulatta.Mmul_10.102.gtf -@ 4 -o annotated.bam -report annotated_report.csv sorted.bam
+
+/home_path/tool/DNBelab_C_Series_scRNA/bin/PISA corr -tag UB -tags-block CB,GX -@ 4 -t 4 -o final.bam annotated.bam
+
+cut -f1 barcode_counts_raw.txt >barcode_raw_list.txt
+
+/home_path/tool/PISA-0.7/PISA attrcnt -cb CB -tags UB,GX,TX -@ 4 -dedup -o cell_stat.txt -list barcode_raw_list.txt -q 20 final.bam
+
+mkdir ./sample_label
+
+/home_path/tool/PISA-0.7/PISA count -@ 20 -tag CB -anno-tag GX -umi UB -outdir ./sample_label -list barcode_raw_list.txt -one-hit -q 20 final.bam
+####
