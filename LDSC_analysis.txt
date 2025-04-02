@@ -1,7 +1,7 @@
 ## The following pipelines were used for LDSC analysis to predict the heritability enrichment of 30 diseases/traits across genes specifically or predominantly expressed in each cell type. For subtype, region and aging related genes, similar pipelines were used. ##
 
 #### Compute annot files from genes specifically expressed each cell type after being transferred to hg19 genome coordinates using Ensembl. All expressed genes were used as a control gene Set ####
-for i in AMY_ExN Astro Bergmann CA1_3 CB_InN CGC cOPC Endo Epen ExN Fib InN Micro Oligo OPC RGC SMC SPN TH_ExN TH_InN
+for i in AMY_ExN Astro Bergmann CA1_3 CB_InN CGC cOPC Endo Epen ExN Fib InN Micro Oligo OPC V4-ExN SMC SPN TH_ExN TH_InN
 do
 for j in {1..22}
 do
@@ -12,7 +12,7 @@ done
 
 
 #### Compute LD scores with an annot file ####
-for i in AMY_ExN Astro Bergmann CA1_3 CB_InN CGC cOPC Endo Epen ExN Fib InN Micro Oligo OPC RGC SMC SPN TH_ExN TH_InN
+for i in AMY_ExN Astro Bergmann CA1_3 CB_InN CGC cOPC Endo Epen ExN Fib InN Micro Oligo OPC V4-ExN SMC SPN TH_ExN TH_InN
 do
 for j in {1..22}
 do
